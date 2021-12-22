@@ -22,35 +22,47 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
+/* EXAMPLE config.txt ('*'s not included)
+ *
+ * Window 800 600
+ * Font fonts/arial.ttf 18 255 255 255
+ * Circle CGreen 100 100 -0.03 0.02 0 255 0 50
+ * Circle CBlue 200 200 0.02 0.04 0 0 255 100
+ * Circle CPurple 300 300 -0.02 -0.01 255 0 255 75
+ * Rectangle RRed 200 200 0.1 0.15 255 0 0 50 25
+ * Rectangle RGrey 300 250 -0.02 0.02 100 100 100 50 100
+ * Rectangle RTeal 25 100 -0.02 -0.02 0 255 255 100 100
+ *
+*/
+
 
 // Window W H
+//  - W is width (duh)
+//  - H is height (duh)
+struct Window { int w, h; };
+
 // Font F S R G B
 //  - F is font file
 //  - S is font size
 //  - (R,G,B) self-explanatory
+struct Font
+{
+    std::string filepath;
+    int size;
+    int r, g, b;
+};
+
 // Rectangle N X Y SX SY R G B W H
 //  - N is name
 //  - (X,Y) pos
 //  - (SX,SY) speed vector
 //  - (R,G,B) self-explanatory
 //  - (W,H) width-height
-// Circle N X Y SX SY R G B R
-//  - N is name
-//  - (X,Y) pos
-//  - (SX,SY) speed vector
-//  - (R,G,B) self-explanatory
-//  - R is radius
-struct MovingCircle
+struct Rectangle
 {
-    std::string name;
-    float x, y;
-    float sx, sy;
-    int r, g, b;
-    float radius;
-};
+    sf::RectangleShape rectangle = sf::RectangleShape();
+    sf::Text text = sf::Text();
 
-struct MovingRectangle
-{
     std::string name;
     float x, y;
     float sx, sy;
@@ -58,13 +70,22 @@ struct MovingRectangle
     float w, h;
 };
 
-struct Window { int w, h; };
-
-struct Font
+// Circle N X Y SX SY R G B R
+//  - N is name
+//  - (X,Y) pos
+//  - (SX,SY) speed vector
+//  - (R,G,B) self-explanatory
+//  - R is radius
+struct Circle
 {
-    std::string filepath;
-    int size;
+    sf::CircleShape circle = sf::CircleShape();
+    sf::Text text = sf::Text();
+
+    std::string name;
+    float x, y;
+    float sx, sy;
     int r, g, b;
+    float radius;
 };
 
 enum CONFIG_TOKEN
@@ -75,10 +96,13 @@ enum CONFIG_TOKEN
     RECTANGLE
 };
 
-void parse(std::ifstream& stream, std::vector<Window>& windowBucket, std::vector<Font>& fontBucket, std::vector<MovingCircle>& circleBucket, std::vector<MovingRectangle>& rectangleBucket)
+// parses the config file. Doesn't have error handling, i.e. if a word is misspelled
+// or a circle has too few arguments things will blow up
+void parse(std::ifstream& stream, std::vector<Window>& windowBucket, std::vector<Font>& fontBucket, std::vector<Circle>& circleBucket, std::vector<Rectangle>& rectangleBucket)
 {
     std::string word;
     CONFIG_TOKEN type;
+    // steps through the config file word by word
     while (stream >> word)
     {
         if (word == "Window")
@@ -90,188 +114,279 @@ void parse(std::ifstream& stream, std::vector<Window>& windowBucket, std::vector
         else if (word == "Circle")
             type = CIRCLE;
 
+        // I know this is ugly, but it works, and, yeah, that's about it.
         switch (type)
         {
             case WINDOW: {
                 Window window {};
+
+
                 stream >> word;
-std::cout << word << std::endl;
                 window.w = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 window.h = std::stoi(word);
+
 
                 windowBucket.push_back(window);
                 break;
             }
             case FONT: {
                 Font font{};
+
+
                 stream >> word;
-std::cout << word << std::endl;
                 font.filepath = word;
+
                 stream >> word;
-std::cout << word << std::endl;
                 font.size = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 font.r = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 font.g = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 font.b = std::stoi(word);
+
 
                 fontBucket.push_back(font);
                 break;
             }
             case CIRCLE: {
-                MovingCircle circle {};
+                Circle circle {};
+
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.name = word;
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.x = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.y = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.sx = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.sy = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.r = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.g = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.b = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 circle.radius = std::stof(word);
-                
+
+
                 circleBucket.push_back(circle);
                 break;
             }
             case RECTANGLE: {
-                MovingRectangle rectangle {};
+                Rectangle rectangle {};
+
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.name = word;
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.x = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.y = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.sx = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.sy = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.r = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.g = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.b = std::stoi(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.w = std::stof(word);
+
                 stream >> word;
-std::cout << word << std::endl;
                 rectangle.h = std::stof(word);
+
+
+                rectangleBucket.push_back(rectangle);
                 break;
             }
         }
     }
 }
 
-int main() {
-    std::vector<MovingRectangle> rectangleList;
-    std::vector<MovingCircle> circleList;
-    std::vector<Window> windowList;
-    std::vector<Font> fontList;
-    
-    
-    // open file
+std::vector<Rectangle> rectangleList;
+std::vector<Circle> circleList;
+std::vector<Window> windowList;
+std::vector<Font> fontList;
+
+void draw(sf::RenderWindow& window)
+{
+    window.clear();
+
+
+    // draw shapes with their names to the screen
+    for (auto& i : circleList) {
+        window.draw(i.circle);
+        window.draw(i.text);
+    }
+    for (auto& i : rectangleList) {
+        window.draw(i.rectangle);
+        window.draw(i.text);
+    }
+
+
+    window.display();
+    // this is just here because the shapes go too fast to read otherwise. remove if you want.
+    sf::sleep(sf::microseconds(100));
+}
+
+void update(sf::RenderWindow& window)
+{
+    const float wWidth = (float)window.getSize().x;
+    const float wHeight = (float)window.getSize().y;
+
+    // update circle and circle's name text positions, then the same but for rectangles
+    for (auto& i : circleList)
+    {
+        // first, we update the position of the circle
+        auto old_position = i.circle.getPosition();
+        i.circle.setPosition(old_position + sf::Vector2f(i.sx, i.sy));
+
+
+        // now, we update the location of the shape's name text to the center of the shape.
+        auto textBounds = i.text.getLocalBounds();
+        auto textMiddleX = textBounds.width / 2.0f;
+        auto textMiddleY = textBounds.height / 2.0f;
+        auto circleLocalBounds = i.circle.getLocalBounds();
+        auto middleOfCircle = sf::Vector2f(circleLocalBounds.width / 2, circleLocalBounds.height / 2);
+        i.text.setPosition(i.circle.getPosition().x + middleOfCircle.x - textMiddleX, i.circle.getPosition().y + middleOfCircle.y - textMiddleY);
+
+
+        // finally, we check the shape's global bounds against the bounds of the window to see if we need to bounce.
+        auto circleGlobalBounds = i.circle.getGlobalBounds();
+        // top and bottom
+        if (circleGlobalBounds.top <0 || circleGlobalBounds.top + circleGlobalBounds.height > (float)wHeight)
+        {
+            i.sy *= -1.0f;
+        }
+        // left and right
+        if (circleGlobalBounds.left <0 || circleGlobalBounds.left + circleGlobalBounds.width > (float)wWidth)
+        {
+            i.sx *= -1.0f;
+        } 
+    }
+
+    for (auto& i : rectangleList)
+    {
+        // first, we update the position of the rectangle
+        auto old_position = i.rectangle.getPosition();
+        i.rectangle.setPosition(old_position + sf::Vector2f(i.sx, i.sy));
+
+
+        // now, we update the location of the shape's name text to the center of the shape.
+        auto textBounds = i.text.getLocalBounds();
+        auto textMiddleX = textBounds.width / 2.0f;
+        auto textMiddleY = textBounds.height / 2.0f;
+        auto rectangleLocalBounds = i.rectangle.getLocalBounds();
+        auto middleOfRectangle = sf::Vector2f(rectangleLocalBounds.width / 2, rectangleLocalBounds.height / 2);
+        i.text.setPosition(i.rectangle.getPosition().x + middleOfRectangle.x - textMiddleX,
+                           i.rectangle.getPosition().y + middleOfRectangle.y - textMiddleY);
+
+
+        // finally, we check the shape's global bounds against the bounds of the window to see if we need to bounce.
+        auto rectangleGlobalBounds = i.rectangle.getGlobalBounds();
+        // top and bottom
+        if (rectangleGlobalBounds.top < 0 || rectangleGlobalBounds.top + rectangleGlobalBounds.height > wHeight)
+        {
+            i.sy *= -1.0f;
+        }
+        // left and right
+        if (rectangleGlobalBounds.left < 0 || rectangleGlobalBounds.left + rectangleGlobalBounds.width > wWidth)
+        {
+            i.sx *= -1.0f;
+        }
+    }
+}
+
+int main()
+{
+    // open file and parse
     std::ifstream file;
     file.open("config.txt", std::ios::in);
-
     parse(file, windowList, fontList, circleList, rectangleList);
-
     file.close();
 
+    // initialize window
     int wWidth = windowList[0].w;
     int wHeight = windowList[0].h;
-
     sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "SFML works!");
 
-    // let's make a shape that we will draw to the screen
-    sf::CircleShape circle(50);
-    circle.setFillColor(sf::Color::Green);
-    circle.setPosition(300.0f, 300.0f);
-    float circleMoveSpeed = -0.01f;
-
-    // load font.
-    sf::Font myFont;
-
-    if (!myFont.loadFromFile(fontList[0].filepath))
+    // load font
+    sf::Font font;
+    if (!font.loadFromFile(fontList[0].filepath))
     {
         std::cerr << "Could not load font!\n";
         exit(-1);
     }
 
-    sf::Text text("Sample Text", myFont, 24);
+    // let's initialize all of our shapes and their according names.
+    for (auto& i : circleList)
+    {
+        i.circle.setPosition(i.x, i.y);
+        i.circle.setFillColor(sf::Color(i.r, i.g, i.b));
+        i.circle.setRadius(i.radius);
 
-    // position the top-left corner of the text so that the text aligns on the bottom
-    // text character size is in pixels, so move the text up from the bottom by its height
-    text.setPosition(0, wHeight - (float)text.getCharacterSize());
+        i.text.setString(i.name);
+        i.text.setFont(font);
+        i.text.setCharacterSize(fontList[0].size);
+        i.text.setFillColor(sf::Color(fontList[0].r, fontList[0].g, fontList[0].b));
+    }
+    for (auto& i : rectangleList)
+    {
+        i.rectangle.setPosition(i.x, i.y);
+        i.rectangle.setFillColor(sf::Color(i.r, i.g, i.b));
+        i.rectangle.setSize(sf::Vector2f(i.w, i.h));
+
+        i.text.setString(i.name);
+        i.text.setFont(font);
+        i.text.setCharacterSize(fontList[0].size);
+        i.text.setFillColor(sf::Color(fontList[0].r, fontList[0].g, fontList[0].b));
+    }
+
 
     // main loop - continues for each frame while window is open
     while (window.isOpen())
     {
         // event handling
-        sf::Event event;
+        sf::Event event {};
         while (window.pollEvent(event))
         {
-            // this event trigerrs when the window is closed
             if (event.type == sf::Event::Closed)
             {
                 window.close();
             }
-
-            // this event is triggered when a key is pressed
-            if (event.type == sf::Event::KeyPressed)
-            {
-                std::cout << "Key pressed with code = " << event.key.code << std::endl;
-
-                // example, what happens when x is pressed
-                if (event.key.code == sf::Keyboard::X)
-                {
-                    // reverse circle direction
-                    circleMoveSpeed *= -1.0f;
-                }
-            }
         }
 
-        // basic animation - move the each frame if its still in frame
-        circle.setPosition(circle.getPosition() + sf::Vector2f(circleMoveSpeed, circleMoveSpeed));
+        update(window);
 
-        // basic rendering function calls
-        window.clear();
-        window.draw(circle);
-        window.draw(text);
-        window.display();
+        draw(window);
     }
 
     return 0;
