@@ -1,3 +1,8 @@
+/* WARNING I AM NOT TAKING THIS COLLEGE COURSE,
+ * I AM SIMPLY WATCHING THE VIDEOS ONLINE
+ */
+
+
 ////////////////////////////////////////////////
 //
 //  Assignment:      COMP4300 - Assignment 1
@@ -7,8 +12,8 @@
 //
 //  Student Name:    Griffin Thompson
 //  Student User:    griffinthompson
-//  Student Email:   24gthompson@go.dsdmail.net
-//  Student ID:      1283434
+//  Student Email:   [removed]
+//  Student ID:      [removed]
 //  Group Member(s): Griffin Thompson
 //
 ////////////////////////////////////////////////
